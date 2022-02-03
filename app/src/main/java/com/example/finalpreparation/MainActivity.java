@@ -13,31 +13,64 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
-    Button toasters;
+    Button Add;
     ImageButton exit_button;
     EditText name;
+    ListView list;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toasters =findViewById(R.id.button);
-        toasters.setOnClickListener(view -> {
-            LayoutInflater toast=getLayoutInflater();
-            View myToast=toast.inflate(R.layout.toast_layout, null );
-            Toast toast1=new Toast(this);
-            toast1.setView(myToast);
-            toast1.setDuration(Toast.LENGTH_SHORT);
-            toast1.show();
-            Intent intent=new Intent(getApplicationContext(), MainActivity2.class);
-            startActivity(intent);
+        ArrayList<String> Array=new ArrayList<String>();
+        ArrayAdapter<String> adapt=new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, Array);
+
+        Add =findViewById(R.id.button);
+        name=findViewById(R.id.Name);
+        list=findViewById(R.id.list_view);
+        exit_button=findViewById(R.id.exit_button);
+        list.setAdapter(adapt);
+        Add.setOnClickListener(view -> {
+            String listname= name.getText().toString();
+            Array.add(listname);
+            adapt.notifyDataSetChanged();
         });
-       exit_button=findViewById(R.id.exit_button);
+
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                AlertDialog.Builder clickDialog= new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Change")
+                        .setIcon(R.drawable.ic_launcher_foreground)
+                        .setMessage("Hello")
+                        .setCancelable(false)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Array.remove(pos);
+                                adapt.notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                        clickDialog.show();
+
+            }
+        });
        exit_button.setOnClickListener(view -> {
            AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
            builder.setMessage("Do You want to exit the application?");
@@ -62,9 +95,5 @@ public class MainActivity extends AppCompatActivity {
            alertDialog.show();
        });
 
-       name=findViewById(R.id.Name);
-       name.setOnClickListener(view -> {
-           name.getText().toString();
-       });
     }
 }
